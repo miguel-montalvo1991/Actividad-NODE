@@ -4,7 +4,7 @@ const port = 3000;
 
 const ProductosRutas = require('./Productos/ProductosRutas');
 
-const UsuariosRutas = require('./Usuarios/suariosRutas');
+const UsuariosRutas = require('./Usuarios/UsuariosRutas');
 
 app.use(express.json());
 

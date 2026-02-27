@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-const productosRutas = require('./Productos/ProductosRutas');
+const ProductosRutas = require('./Productos/ProductosRutas');
+
+const UsuariosRutas = require('./Usuarios/suariosRutas');
 
 app.use(express.json());
 

@@ -9,7 +9,7 @@ const UsuariosRutas = require('./Usuarios/UsuariosRutas');
 app.use(express.json());
 
 // todas las rutas de productos van a pasar por aqui
-app.use('/productos', productosRutas);
+app.use('/Productos', ProductosRutas);
 
 app.listen(port, () => {
   console.log("Server esta arriba " + port);

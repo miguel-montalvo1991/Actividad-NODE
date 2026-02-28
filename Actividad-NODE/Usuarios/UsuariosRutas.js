@@ -6,8 +6,8 @@ const router = express.Router()
 const usuarios = [
   { id: 1, Nombre: "carla", Apellido: "bravo", email: "@carla.com", telefono:35515425},
   { id: 2, Nombre: "davier", Apellido: "quinto", email: "@davier.com", telefono:2949892},
-  { id: 3, Nombre: "manuela", Apellido: "cordoba", email: "@cordabo", telefono:15984+69},
-  { id: 4, Nombre: "miguel sama ", Apellido: "montalvo", email: "@monta.com", telefono:498516876+5 },
+  { id: 3, Nombre: "manuela", Apellido: "cordoba", email: "@cordabo", telefono:1598469},
+  { id: 4, Nombre: "miguel sama ", Apellido: "montalvo", email: "@monta.com", telefono:4985168765 },
 ];
 
 
@@ -31,11 +31,11 @@ router.get('/', verificarContrasena, (req, res) => {
 
   let filteredusuarios = usuarios.filter(u => {
     return (
-      (!id || u.idtoLowerCase().includes(usuarios.toLowerCase())) &&
-      (!Nombre || u.Nombre == Nombre) &&
+      (!id || u.id == id) &&
+      (!Nombre || u.Nombre.toLowerCase().includes(Nombre.toLowerCase())) &&
       (!Apellido|| u.Apellido.toLowerCase().includes(Apellido.toLowerCase())) &&
       (!email|| u.email== email) &&
-      (!telefono|| u.telefono.toLowerCase().includes(telefono.etoLowerCase()))
+      (!telefono || u.telefono == telefono)
     );
   });
 
@@ -47,9 +47,9 @@ router.get('/', verificarContrasena, (req, res) => {
 
 // GET - usuarios por id (pide password)
 router.get('/:id', verificarContrasena, (req, res) => {
-  const usuarios = usuarios.find((p) => p.id == req.params.id);
-  if (!usuarios) return res.status(404).json({ error: "usuario no encontrado" });
-  res.send(JSON.stringify(usuarios, null, 2));
+  const usuario = usuarios.find((p) => p.id == req.params.id);
+  if (!usuario) return res.status(404).json({ error: "usuario no encontrado" });
+  res.send(JSON.stringify(usuario, null, 2));
 });
 
 //

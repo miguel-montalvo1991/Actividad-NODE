@@ -1,220 +1,285 @@
-# 🛒 Tienda Virtual — API REST con Node.js + SQLite
+# 🛒 Actividad-NODE — API REST + Tienda Virtual
 
-Proyecto desarrollado para el programa **Tecnología en Análisis y Desarrollo de Software** del SENA, Centro de Servicios y Gestión Empresarial.
+Proyecto desarrollado en el SENA como parte del proceso formativo en **Análisis y Desarrollo de Software (ADSO)**.
 
----
-
-## 👥 Equipo de trabajo
-
-| Nombre | Rol |
-|--------|-----|
-| Davier Andrés Quinto Bejarano | Desarrollador |
-| Manuela Córdoba Robledo | Desarrolladora |
-| Luis Miguel Montalvo Álvarez | Desarrollador |
+Consiste en una **API REST** construida con Node.js y Express, conectada a una base de datos SQLite, y un **frontend en React + Vite** que funciona como tienda virtual.
 
 ---
 
-## 📋 Descripción
-
-API REST construida con **Node.js** y **Express.js** que gestiona una tienda virtual con 4 módulos: usuarios, productos, pedidos y ventas. En esta segunda guía se conectó la API a una base de datos **SQLite** y se implementaron validaciones en todos los endpoints.
-
----
-
-## 🗂️ Estructura del proyecto
+## 📁 Estructura del proyecto
 
 ```
 Actividad-NODE/
-├── index.js
+│
+├── index.js                  # Punto de entrada del servidor
+├── database.db               # Base de datos SQLite
+│
 ├── db/
-│   └── db.js               ← conexión y creación de tablas SQLite
-├── database.db             ← se genera automáticamente (no subir a GitHub)
+│   └── db.js                 # Conexión a SQLite y creación de tablas
+│
+├── middlewares/
+│   └── auth.js               # Middleware de autenticación centralizado
+│
+├── models/                   # Capa de acceso a datos (consultas SQL)
+│   ├── usuariosModel.js
+│   ├── productosModel.js
+│   ├── pedidosModel.js
+│   └── ventasModel.js
+│
+├── controllers/              # Lógica de negocio y validaciones
+│   ├── usuariosController.js
+│   ├── productosController.js
+│   ├── pedidosController.js
+│   └── ventasController.js
+│
 ├── Usuarios/
-│   └── UsuariosRutas.js
+│   └── UsuariosRutas.js      # Rutas del módulo usuarios
 ├── Productos/
-│   └── ProductosRutas.js
+│   └── ProductosRutas.js     # Rutas del módulo productos
 ├── Pedidos/
-│   └── PedidosRutas.js
+│   └── PedidosRutas.js       # Rutas del módulo pedidos
 ├── Ventas/
-│   └── VentasRutas.js
-├── package.json
-└── README.md
+│   └── VentasRutas.js        # Rutas del módulo ventas
+│
+└── frontend/
+    └── frontend-tienda/      # Aplicación React + Vite (tienda virtual)
 ```
 
 ---
 
-## 🗄️ Modelo de Base de Datos
+## ⚙️ Tecnologías utilizadas
 
-### Diagrama Entidad-Relación
-
-```
-usuarios (PK: id)
-    │
-    │ 1:N                    1:N
-    ├──────────────► pedidos ◄──────────── productos (PK: id)
-    │                (FK: usuarioId)
-    │                (FK: productoId)
-    │
-    │ 1:N
-    └──────────────► ventas
-                     (FK: usuarioId)
-```
-
-### Relaciones
-
-| Tabla origen | Tabla destino | Cardinalidad | Descripción |
-|-------------|---------------|-------------|-------------|
-| usuarios | pedidos | 1 : N | Un usuario puede tener muchos pedidos |
-| productos | pedidos | 1 : N | Un producto puede estar en muchos pedidos |
-| usuarios | ventas | 1 : N | Un usuario puede tener muchas ventas |
+| Tecnología | Uso |
+|---|---|
+| Node.js | Entorno de ejecución del backend |
+| Express | Framework para la API REST |
+| SQLite3 | Base de datos local |
+| CORS | Comunicación entre frontend y backend |
+| React | Librería para el frontend |
+| Vite | Empaquetador del frontend |
+| Tailwind CSS | Estilos del frontend |
 
 ---
 
-## 📋 Diccionario de Datos
+## 🚀 Cómo ejecutar el proyecto
 
-### Tabla: `usuarios`
+### 1. Instalar dependencias del backend
 
-| Campo | Tipo | PK | FK | Restricción | Descripción |
-|-------|------|----|----|-------------|-------------|
-| id | INTEGER | SI | NO | AUTOINCREMENT | Identificador único |
-| nombre | TEXT | NO | NO | NOT NULL | Nombre del usuario |
-| apellido | TEXT | NO | NO | NOT NULL | Apellido del usuario |
-| email | TEXT | NO | NO | NOT NULL · UNIQUE | Correo, no se repite |
-| telefono | TEXT | NO | NO | — | Número de contacto |
-
-### Tabla: `productos`
-
-| Campo | Tipo | PK | FK | Restricción | Descripción |
-|-------|------|----|----|-------------|-------------|
-| id | INTEGER | SI | NO | AUTOINCREMENT | Identificador único |
-| nombre | TEXT | NO | NO | NOT NULL | Nombre del producto |
-| categoria | TEXT | NO | NO | NOT NULL | Categoría del producto |
-| precio | REAL | NO | NO | NOT NULL · CHECK > 0 | Precio de venta |
-| stock | INTEGER | NO | NO | NOT NULL · CHECK >= 0 | Unidades disponibles |
-
-### Tabla: `pedidos`
-
-| Campo | Tipo | PK | FK | Restricción | Descripción |
-|-------|------|----|----|-------------|-------------|
-| id | INTEGER | SI | NO | AUTOINCREMENT | Identificador único |
-| usuarioId | INTEGER | NO | SI | NOT NULL · → usuarios.id | Usuario que pidió |
-| productoId | INTEGER | NO | SI | NOT NULL · → productos.id | Producto pedido |
-| cantidad | INTEGER | NO | NO | NOT NULL · CHECK > 0 | Unidades pedidas |
-| total | REAL | NO | NO | NOT NULL · CHECK > 0 | Valor total |
-
-### Tabla: `ventas`
-
-| Campo | Tipo | PK | FK | Restricción | Descripción |
-|-------|------|----|----|-------------|-------------|
-| id | INTEGER | SI | NO | AUTOINCREMENT | Identificador único |
-| usuarioId | INTEGER | NO | SI | NOT NULL · → usuarios.id | Usuario comprador |
-| fecha | TEXT | NO | NO | NOT NULL | Fecha (YYYY-MM-DD) |
-| total | REAL | NO | NO | NOT NULL · CHECK > 0 | Valor total |
-| metodoPago | TEXT | NO | NO | NOT NULL · CHECK IN lista | efectivo, tarjeta, transferencia |
-| estado | TEXT | NO | NO | DEFAULT pendiente | completada, pendiente, cancelada |
-
----
-
-## ✅ Validaciones implementadas
-
-### Usuarios
-- `nombre` y `email` son obligatorios
-- El `email` no puede estar repetido (unicidad)
-
-### Productos
-- `nombre`, `categoria`, `precio` y `stock` son obligatorios
-- `precio` debe ser un número mayor a 0
-- `stock` debe ser un entero mayor o igual a 0
-
-### Pedidos
-- `usuarioId`, `productoId`, `cantidad` y `total` son obligatorios
-- `cantidad` debe ser un entero mayor a 0
-- `total` debe ser un número mayor a 0
-- El `usuarioId` debe existir en la tabla usuarios
-- El `productoId` debe existir en la tabla productos
-
-### Ventas
-- `usuarioId`, `fecha`, `total` y `metodoPago` son obligatorios
-- `total` debe ser un número mayor a 0
-- `metodoPago` solo acepta: `efectivo`, `tarjeta`, `transferencia`
-- `estado` solo acepta: `completada`, `pendiente`, `cancelada`
-- El `usuarioId` debe existir en la tabla usuarios
-
----
-
-## 🚀 Cómo correr el proyecto
+Estando en la carpeta raíz `Actividad-NODE`:
 
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/miguel-montalvo1991/Actividad-NODE
-
-# 2. Instalar dependencias
 npm install
+```
 
-# 3. Correr el servidor
+### 2. Iniciar el servidor backend
+
+```bash
 node index.js
 ```
 
-El servidor queda corriendo en `http://localhost:3000` y la base de datos `database.db` se genera automáticamente.
+El servidor queda corriendo en: `http://localhost:3000`
+
+Si todo está bien, verás esto en la terminal:
+
+```
+Base de datos SQLite conectada correctamente
+Tabla usuarios lista
+Tabla productos lista
+Tabla pedidos lista
+Tabla ventas lista
+Server esta arriba 3000
+```
+
+### 3. Iniciar el frontend (en otra terminal)
+
+```bash
+cd frontend/frontend-tienda
+npm install
+npm run dev
+```
+
+El frontend queda disponible en: `http://localhost:5173`
 
 ---
 
 ## 🔐 Autenticación
 
-Todos los endpoints requieren el siguiente header:
+Todas las rutas de la API están protegidas por un middleware de autenticación. Se debe enviar el siguiente header en cada petición:
 
 ```
 password: sena2025
 ```
 
----
+Si no se envía o es incorrecto, la API responde con:
 
-## 📡 Endpoints disponibles
-
-### Usuarios `/usuarios`
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | /usuarios | Obtener todos los usuarios |
-| GET | /usuarios/:id | Obtener un usuario por ID |
-| POST | /usuarios | Crear un nuevo usuario |
-| PUT | /usuarios/:id | Actualizar un usuario |
-| DELETE | /usuarios/:id | Eliminar un usuario |
-
-### Productos `/productos`
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | /productos | Obtener todos los productos |
-| GET | /productos/:id | Obtener un producto por ID |
-| POST | /productos | Crear un nuevo producto |
-| PUT | /productos/:id | Actualizar un producto |
-| DELETE | /productos/:id | Eliminar un producto |
-
-### Pedidos `/pedidos`
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | /pedidos | Obtener todos los pedidos |
-| GET | /pedidos/:id | Obtener un pedido por ID |
-| POST | /pedidos | Crear un nuevo pedido |
-| PUT | /pedidos/:id | Actualizar un pedido |
-| DELETE | /pedidos/:id | Eliminar un pedido |
-
-### Ventas `/ventas`
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | /ventas | Obtener todas las ventas |
-| GET | /ventas/:id | Obtener una venta por ID |
-| POST | /ventas | Crear una nueva venta |
-| PUT | /ventas/:id | Actualizar una venta |
-| DELETE | /ventas/:id | Eliminar una venta |
+```json
+{ "error": "Incorrect password, or password not sent" }
+```
 
 ---
 
-## 🛠️ Tecnologías usadas
+## 📌 Endpoints disponibles
 
-- Node.js
-- Express.js
-- SQLite3
-- Postman (pruebas)
+Todos los módulos siguen el mismo patrón REST:
+
+### Usuarios — `/usuarios`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | /usuarios | Retorna todos los usuarios |
+| GET | /usuarios/:id | Busca un usuario por ID |
+| POST | /usuarios | Crea un nuevo usuario |
+| PUT | /usuarios/:id | Actualiza un usuario |
+| DELETE | /usuarios/:id | Elimina un usuario |
+
+**Ejemplo body POST/PUT:**
+```json
+{
+  "nombre": "Juan",
+  "apellido": "Perez",
+  "email": "juan@mail.com",
+  "telefono": "3001234567"
+}
+```
 
 ---
 
-*SENA — Centro de Servicios y Gestión Empresarial · Guía N°2 · 2025*
+### Productos — `/productos`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | /productos | Retorna todos los productos |
+| GET | /productos/:id | Busca un producto por ID |
+| POST | /productos | Crea un nuevo producto |
+| PUT | /productos/:id | Actualiza un producto |
+| DELETE | /productos/:id | Elimina un producto |
+
+**Ejemplo body POST/PUT:**
+```json
+{
+  "nombre": "Gorra",
+  "categoria": "Accesorios",
+  "precio": 25000,
+  "stock": 15
+}
+```
+
+---
+
+### Pedidos — `/pedidos`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | /pedidos | Retorna todos los pedidos |
+| GET | /pedidos/:id | Busca un pedido por ID |
+| POST | /pedidos | Crea un nuevo pedido |
+| PUT | /pedidos/:id | Actualiza un pedido |
+| DELETE | /pedidos/:id | Elimina un pedido |
+
+**Ejemplo body POST/PUT:**
+```json
+{
+  "usuarioId": 1,
+  "productoId": 2,
+  "cantidad": 3,
+  "total": 75000
+}
+```
+
+---
+
+### Ventas — `/ventas`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | /ventas | Retorna todas las ventas |
+| GET | /ventas/:id | Busca una venta por ID |
+| POST | /ventas | Crea una nueva venta |
+| PUT | /ventas/:id | Actualiza una venta |
+| DELETE | /ventas/:id | Elimina una venta |
+
+**Ejemplo body POST/PUT:**
+```json
+{
+  "usuarioId": 1,
+  "fecha": "2025-03-01",
+  "total": 60000,
+  "metodoPago": "tarjeta",
+  "estado": "completada"
+}
+```
+
+Valores permitidos:
+- `metodoPago`: `efectivo`, `tarjeta`, `transferencia`
+- `estado`: `completada`, `pendiente`, `cancelada`
+
+---
+
+## 🗄️ Base de datos
+
+Las tablas se crean automáticamente al iniciar el servidor. El esquema es el siguiente:
+
+```sql
+-- Usuarios
+CREATE TABLE usuarios (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre   TEXT NOT NULL,
+  apellido TEXT NOT NULL,
+  email    TEXT NOT NULL UNIQUE,
+  telefono TEXT
+);
+
+-- Productos
+CREATE TABLE productos (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre    TEXT NOT NULL,
+  categoria TEXT NOT NULL,
+  precio    REAL NOT NULL CHECK(precio > 0),
+  stock     INTEGER NOT NULL DEFAULT 0 CHECK(stock >= 0)
+);
+
+-- Pedidos
+CREATE TABLE pedidos (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuarioId  INTEGER NOT NULL,
+  productoId INTEGER NOT NULL,
+  cantidad   INTEGER NOT NULL CHECK(cantidad > 0),
+  total      REAL NOT NULL CHECK(total > 0),
+  FOREIGN KEY (usuarioId)  REFERENCES usuarios(id),
+  FOREIGN KEY (productoId) REFERENCES productos(id)
+);
+
+-- Ventas
+CREATE TABLE ventas (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuarioId  INTEGER NOT NULL,
+  fecha      TEXT NOT NULL,
+  total      REAL NOT NULL CHECK(total > 0),
+  metodoPago TEXT NOT NULL,
+  estado     TEXT NOT NULL DEFAULT 'pendiente',
+  FOREIGN KEY (usuarioId) REFERENCES usuarios(id)
+);
+```
+
+---
+
+## 🏗️ Arquitectura del proyecto
+
+El proyecto aplica una separación en **3 capas** por módulo:
+
+```
+Rutas  →  Controladores  →  Modelos  →  Base de datos
+```
+
+- **Rutas:** solo definen las URLs y qué controlador atiende cada una
+- **Controladores:** contienen las validaciones y la lógica de negocio
+- **Modelos:** se encargan únicamente de las consultas SQL
+
+Esto hace el código más organizado, fácil de mantener y de escalar.
+
+---
+
+## 👨‍💻 Autor
+
+Proyecto desarrollado por un aprendiz del SENA — Ficha ADSO  
+Segundo trimestre — Desarrollo de Software

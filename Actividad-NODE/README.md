@@ -1,8 +1,23 @@
 # 🛒 Actividad-NODE — API REST + Tienda Virtual
 
-Proyecto desarrollado en el SENA como parte del proceso formativo en **Análisis y Desarrollo de Software (ADSO)**.
+Proyecto desarrollado en el **SENA** como parte del proceso formativo en **Análisis y Desarrollo de Software (ADSO)**.
 
 Consiste en una **API REST** construida con Node.js y Express, conectada a una base de datos SQLite, y un **frontend en React + Vite** que funciona como tienda virtual.
+
+---
+
+## 👥 Equipo de trabajo
+
+| Nombre | Rol |
+|---|---|
+| Manuela Córdoba Robledo | Aprendiz ADSO |
+| Davier Andrés Quinto Bejarano | Aprendiz ADSO |
+| Luis Miguel Montalvo Álvarez | Aprendiz ADSO |
+
+-  **Ficha:** 3229209
+-  **Instructor:** Mateo Arroyave
+-  **Centro de formación:** SENA — Tecnología en Análisis y Desarrollo de Software
+-  **Trimestre:** Segundo trimestre — 2026
 
 ---
 
@@ -12,7 +27,8 @@ Consiste en una **API REST** construida con Node.js y Express, conectada a una b
 Actividad-NODE/
 │
 ├── index.js                  # Punto de entrada del servidor
-├── database.db               # Base de datos SQLite
+├── database.db               # Base de datos SQLite (se genera automáticamente)
+├── package.json
 │
 ├── db/
 │   └── db.js                 # Conexión a SQLite y creación de tablas
@@ -122,7 +138,7 @@ Si no se envía o es incorrecto, la API responde con:
 
 Todos los módulos siguen el mismo patrón REST:
 
-### Usuarios — `/usuarios`
+### 👤 Usuarios — `/usuarios`
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -144,7 +160,7 @@ Todos los módulos siguen el mismo patrón REST:
 
 ---
 
-### Productos — `/productos`
+### 📦 Productos — `/productos`
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -166,7 +182,7 @@ Todos los módulos siguen el mismo patrón REST:
 
 ---
 
-### Pedidos — `/pedidos`
+### 🛒 Pedidos — `/pedidos`
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -188,7 +204,7 @@ Todos los módulos siguen el mismo patrón REST:
 
 ---
 
-### Ventas — `/ventas`
+### 💰 Ventas — `/ventas`
 
 | Método | Ruta | Descripción |
 |---|---|---|
@@ -202,7 +218,7 @@ Todos los módulos siguen el mismo patrón REST:
 ```json
 {
   "usuarioId": 1,
-  "fecha": "2025-03-01",
+  "fecha": "2026-03-10",
   "total": 60000,
   "metodoPago": "tarjeta",
   "estado": "completada"
@@ -221,45 +237,107 @@ Las tablas se crean automáticamente al iniciar el servidor. El esquema es el si
 
 ```sql
 -- Usuarios
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
   id       INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre   TEXT NOT NULL,
-  apellido TEXT NOT NULL,
-  email    TEXT NOT NULL UNIQUE,
+  nombre   TEXT    NOT NULL,
+  apellido TEXT    NOT NULL,
+  email    TEXT    NOT NULL UNIQUE,
   telefono TEXT
 );
 
 -- Productos
-CREATE TABLE productos (
+CREATE TABLE IF NOT EXISTS productos (
   id        INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre    TEXT NOT NULL,
-  categoria TEXT NOT NULL,
-  precio    REAL NOT NULL CHECK(precio > 0),
+  nombre    TEXT    NOT NULL,
+  categoria TEXT    NOT NULL,
+  precio    REAL    NOT NULL CHECK(precio > 0),
   stock     INTEGER NOT NULL DEFAULT 0 CHECK(stock >= 0)
 );
 
 -- Pedidos
-CREATE TABLE pedidos (
+CREATE TABLE IF NOT EXISTS pedidos (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   usuarioId  INTEGER NOT NULL,
   productoId INTEGER NOT NULL,
   cantidad   INTEGER NOT NULL CHECK(cantidad > 0),
-  total      REAL NOT NULL CHECK(total > 0),
+  total      REAL    NOT NULL CHECK(total > 0),
   FOREIGN KEY (usuarioId)  REFERENCES usuarios(id),
   FOREIGN KEY (productoId) REFERENCES productos(id)
 );
 
 -- Ventas
-CREATE TABLE ventas (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  usuarioId  INTEGER NOT NULL,
-  fecha      TEXT NOT NULL,
-  total      REAL NOT NULL CHECK(total > 0),
-  metodoPago TEXT NOT NULL,
-  estado     TEXT NOT NULL DEFAULT 'pendiente',
+CREATE TABLE IF NOT EXISTS ventas (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuarioId   INTEGER NOT NULL,
+  fecha       TEXT    NOT NULL,
+  total       REAL    NOT NULL CHECK(total > 0),
+  metodoPago  TEXT    NOT NULL CHECK(metodoPago IN ('efectivo', 'tarjeta', 'transferencia')),
+  estado      TEXT    NOT NULL DEFAULT 'pendiente' CHECK(estado IN ('completada', 'pendiente', 'cancelada')),
   FOREIGN KEY (usuarioId) REFERENCES usuarios(id)
 );
 ```
+
+---
+
+## 📖 Diccionario de datos
+
+### 👤 Tabla: `usuarios`
+
+| Clave | Campo | Tipo | Nulo | Default | Restricción | Descripción |
+|---|---|---|---|---|---|---|
+| PK | id | INTEGER | NO | AUTOINCREMENT | PRIMARY KEY | Identificador único |
+| | nombre | TEXT | NO | — | NOT NULL | Nombre del usuario |
+| | apellido | TEXT | NO | — | NOT NULL | Apellido del usuario |
+| | email | TEXT | NO | — | UNIQUE NOT NULL | Correo electrónico |
+| | telefono | TEXT | SÍ | NULL | — | Teléfono de contacto |
+
+### 📦 Tabla: `productos`
+
+| Clave | Campo | Tipo | Nulo | Default | Restricción | Descripción |
+|---|---|---|---|---|---|---|
+| PK | id | INTEGER | NO | AUTOINCREMENT | PRIMARY KEY | Identificador único |
+| | nombre | TEXT | NO | — | NOT NULL | Nombre del producto |
+| | categoria | TEXT | NO | — | NOT NULL | Categoría del producto |
+| | precio | REAL | NO | — | CHECK > 0 | Precio unitario |
+| | stock | INTEGER | NO | 0 | CHECK >= 0 | Unidades disponibles |
+
+### 🛒 Tabla: `pedidos`
+
+| Clave | Campo | Tipo | Nulo | Default | Restricción | Descripción |
+|---|---|---|---|---|---|---|
+| PK | id | INTEGER | NO | AUTOINCREMENT | PRIMARY KEY | Identificador único |
+| FK | usuarioId | INTEGER | NO | — | REFERENCES usuarios(id) | Usuario que hace el pedido |
+| FK | productoId | INTEGER | NO | — | REFERENCES productos(id) | Producto pedido |
+| | cantidad | INTEGER | NO | — | CHECK > 0 | Cantidad de unidades |
+| | total | REAL | NO | — | CHECK > 0 | Valor total del pedido |
+
+### 💰 Tabla: `ventas`
+
+| Clave | Campo | Tipo | Nulo | Default | Restricción | Descripción |
+|---|---|---|---|---|---|---|
+| PK | id | INTEGER | NO | AUTOINCREMENT | PRIMARY KEY | Identificador único |
+| FK | usuarioId | INTEGER | NO | — | REFERENCES usuarios(id) | Usuario de la venta |
+| | fecha | TEXT | NO | — | NOT NULL | Fecha de la venta |
+| | total | REAL | NO | — | CHECK > 0 | Valor total de la venta |
+| | metodoPago | TEXT | NO | — | CHECK IN (efectivo, tarjeta, transferencia) | Método de pago |
+| | estado | TEXT | NO | pendiente | CHECK IN (completada, pendiente, cancelada) | Estado de la venta |
+
+---
+
+## 📊 Diagrama Entidad–Relación
+
+> Insertar aquí la imagen del diagrama ER
+
+```
+usuarios  ──────1──────<  pedidos  >──────1──────  productos
+    │
+    └──────1──────<  ventas
+```
+
+**Relaciones:**
+- Un **usuario** puede tener muchos **pedidos** (1:N)
+- Un **producto** puede aparecer en muchos **pedidos** (1:N)
+- Un **usuario** puede tener muchas **ventas** (1:N)
 
 ---
 
@@ -279,7 +357,22 @@ Esto hace el código más organizado, fácil de mantener y de escalar.
 
 ---
 
+## 🧪 Pruebas con Postman
+
+La colección de pruebas incluye casos válidos e inválidos (errores 400 y 404) para todos los módulos.
+
+> Importar el archivo `postman-collection.json` en Postman para ejecutar las pruebas.
+
+---
+
+## 💭 Reflexión del equipo
+
+Durante el desarrollo de esta actividad aprendimos a conectar Node.js con SQLite usando el módulo `sqlite3`, a organizar el código en capas (rutas, controladores y modelos) y a proteger los endpoints con un middleware de autenticación. También entendimos la importancia de activar las llaves foráneas en SQLite con `PRAGMA foreign_keys = ON` ya que vienen desactivadas por defecto. Fue un proceso de mucho ensayo y error pero logramos que todo funcionara correctamente.
+
+---
+
 ## 👨‍💻 Autor
 
-Proyecto desarrollado por un aprendiz del SENA — Ficha ADSO  
-Segundo trimestre — Desarrollo de Software
+Proyecto desarrollado por aprendices del SENA — Ficha **3229209**  
+Segundo trimestre — Desarrollo de Software  
+Instructor: **Mateo Arroyave**

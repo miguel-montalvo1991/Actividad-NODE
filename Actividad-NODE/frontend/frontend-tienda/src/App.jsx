@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const API = "http://localhost:3000";
-const PASSWORD = "sena2025";
+const PASSWORD = "sena2026";
 
 const headers = {
   "Content-Type": "application/json",
@@ -427,7 +427,7 @@ export default function App() {
 
       {/* footer */}
       <footer className="border-t border-[#21262d] mt-16 py-6 text-center text-xs text-gray-700">
-        Davier Quinto · Manuela Córdoba · Luis Miguel Montalvo — SENA 2025
+        Davier Quinto · Manuela Córdoba · Luis Miguel Montalvo — SENA 2026
       </footer>
     </div>
   );

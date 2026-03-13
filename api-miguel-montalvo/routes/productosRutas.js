@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const verificarContrasena = require('../../../middlewares/auth');
-const productosController = require('../../../controllers/productosController');
+const verificarContrasena = require('../middlewares/auth');
+const productosController = require('../controllers/productosController');
 
 router.get('/',       verificarContrasena, productosController.obtenerProductos);
 router.get('/:id',    verificarContrasena, productosController.obtenerProductoPorId);

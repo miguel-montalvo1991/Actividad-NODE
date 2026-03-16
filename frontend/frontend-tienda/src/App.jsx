@@ -200,8 +200,8 @@ function Modulo({ nombre, color, icon, endpoint, fields, columns, rowKey }) {
           <div>
             <h2 className={`font-bold text-lg ${c.head}`}>{nombre}</h2>
             <p  className="text-xs text-gray-500">
-               {loading ? "Cargando..." : `${data.length} registros`}
-                 </p>
+                {loading ? "Cargando..." : `${data.length} registros`}
+            </p>
           </div>
         </div>
         <button onClick={abrirCrear}

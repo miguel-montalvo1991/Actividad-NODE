@@ -16,8 +16,7 @@ app.use(cors({
 
 app.use(express.json());
 
-/* 1️⃣ Servir el frontend */
-app.use(express.static(path.join(__dirname, "frontend")));
+app.use(express.static(path.join(__dirname, "frontend/frontend-tienda/dist")));
 
 /* 2️⃣ Middleware de seguridad para la API */
 app.use((req, res, next) => {

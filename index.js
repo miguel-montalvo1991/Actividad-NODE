@@ -5,8 +5,12 @@ const cors = require("cors");
 
 const app = express();
 
+// ✅ Después
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://api-miguel-montalvo.netlify.app"
+  ],
   allowedHeaders: ["Content-Type", "password"],
 }));
 

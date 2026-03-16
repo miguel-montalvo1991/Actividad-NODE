@@ -1,9 +1,13 @@
 // ============================================================
 // controllers/productosController.js - Lógica de negocio: productos
+//
+// Mismo patrón que usuariosController.js:
+// validar → consultar modelo → responder
 // ============================================================
 
 const productosModel = require('../models/productosModel');
 
+// GET /productos → Retorna todos los productos
 const obtenerProductos = (req, res) => {
   productosModel.obtenerTodos((err, rows) => {
     if (err) return res.status(500).json({ success: false, message: err.message });
@@ -11,6 +15,7 @@ const obtenerProductos = (req, res) => {
   });
 };
 
+// GET /productos/:id → Retorna un producto por ID
 const obtenerProductoPorId = (req, res) => {
   productosModel.obtenerPorId(req.params.id, (err, row) => {
     if (err) return res.status(500).json({ success: false, message: err.message });
@@ -19,17 +24,22 @@ const obtenerProductoPorId = (req, res) => {
   });
 };
 
+// POST /productos → Crea un nuevo producto
 const crearProducto = (req, res) => {
   const { nombre, categoria, precio, stock } = req.body;
 
+  // Validación: todos los campos son obligatorios
+  // precio y stock pueden ser 0 numérico, por eso verificamos con === undefined
   if (!nombre || !categoria || precio === undefined || stock === undefined) {
     return res.status(400).json({ success: false, message: 'nombre, categoria, precio y stock son obligatorios' });
   }
 
+  // El precio debe ser un número mayor a 0
   if (isNaN(precio) || Number(precio) <= 0) {
     return res.status(400).json({ success: false, message: 'precio debe ser un número mayor a 0' });
   }
 
+  // El stock debe ser un entero mayor o igual a 0 (puede ser 0 si no hay disponible)
   if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
     return res.status(400).json({ success: false, message: 'stock debe ser un número entero mayor o igual a 0' });
   }
@@ -43,6 +53,7 @@ const crearProducto = (req, res) => {
   });
 };
 
+// PUT /productos/:id → Actualiza un producto
 const actualizarProducto = (req, res) => {
   const { nombre, categoria, precio, stock } = req.body;
 
@@ -58,6 +69,7 @@ const actualizarProducto = (req, res) => {
     return res.status(400).json({ success: false, message: 'stock debe ser un número entero mayor o igual a 0' });
   }
 
+  // Verificamos que el producto exista antes de actualizar
   productosModel.obtenerPorId(req.params.id, (err, row) => {
     if (err) return res.status(500).json({ success: false, message: err.message });
     if (!row) return res.status(404).json({ success: false, message: 'producto no encontrado' });
@@ -69,6 +81,7 @@ const actualizarProducto = (req, res) => {
   });
 };
 
+// DELETE /productos/:id → Elimina un producto
 const eliminarProducto = (req, res) => {
   productosModel.obtenerPorId(req.params.id, (err, row) => {
     if (err) return res.status(500).json({ success: false, message: err.message });

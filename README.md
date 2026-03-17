@@ -6,13 +6,11 @@ Consiste en una **API REST** construida con Node.js y Express, conectada a una b
 
 ---
 
-## 👥 Equipo de trabajo
+## 👥 DEVELOPER
 
-| Nombre | Rol |
-|---|---|
-| Manuela Córdoba Robledo | Aprendiz ADSO |
-| Davier Andrés Quinto Bejarano | Aprendiz ADSO |
-| Luis Miguel Montalvo Álvarez | Aprendiz ADSO |
+| Nombre |                                                       Rol |
+
+| Luis Miguel Montalvo Álvarez | Aprendiz ADSO |                     |   FULL STACK                  
 
 - **Ficha:** 3229209
 - **Instructor:** Mateo Arroyave
@@ -89,6 +87,8 @@ api-miguel-montalvo/
 | Tailwind CSS | Estilos del frontend |
 | Netlify | Despliegue del frontend |
 | Render | Despliegue del backend |
+| Orbitron / Rajdhani | Tipografía futurista del frontend |
+| Glassmorphism + Bisel | Estilo visual del panel |
 
 ---
 
